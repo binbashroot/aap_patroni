@@ -5,7 +5,7 @@ AAP2.6+ in an HA config using Patroni
 3. Run deploy_pgcluster.yml playbook
 4. Run deploy_haproxy.yml playbook
 5. Update your AAP installation inventory. Refer to the example AAP 2.6 [inventory](./examples/aap26_inventory)
- 
+6. Install AAP 
 
 Additional information:  
 ETCD and Patroni are installed from an external Postgres yum repo
