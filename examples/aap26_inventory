@@ -1,0 +1,119 @@
+# Installation inventory for AAP using a patroni 3 node PG cluster
+# with an HAproxy service on each AAP service node.
+# You will also need an haproxy service on your deployment host
+# The deployment node haproxy service can be turned down afterwards
+
+[automationgateway]
+aapgtwy1.example.com
+aapgtwy2.example.com
+
+[automationcontroller]
+aapctrl1.example.com
+aapctrl2.example.com
+
+#[execution_nodes]
+#hop1.example.org receptor_type='hop'
+#exec1.example.org
+#exec2.example.org
+
+[automationhub]
+aaphub1.example.com
+aaphub2.example.com
+
+[automationeda]
+aapeda1.example.com
+aapeda2.example.com
+
+# This section is for your AAP Lightspeed host(s)
+# -----------------------------------------------------
+# [ansiblelightspeed]
+# lightspeed1.example.org
+# lightspeed2.example.org
+
+# This section is for your Ansible MCP Server host(s)
+# -----------------------------------------------------
+# [ansiblemcp]
+# mcpserver1.example.org
+
+[redis]
+aapgtwy1.example.com
+aapgtwy2.example.com
+aaphub1.example.com
+aaphub2.example.com
+aapeda1.example.com
+aapeda2.example.com
+
+#[database]
+#aapdb.example.com
+
+[all:vars]
+bundle_install=true
+bundle_dir='{{ lookup("ansible.builtin.env", "PWD") }}/bundle'
+
+# Certificates
+certs_dir='{{ lookup("ansible.builtin.env", "PWD") }}/certs'
+custom_ca_cert='{{ certs_dir }}/ca.crt'
+controller_tls_cert='{{ certs_dir }}/wildcard-example.com.crt'
+controller_tls_key='{{ certs_dir }}/wildcard-example.com.key'
+eda_tls_cert='{{ certs_dir }}/wildcard-example.com.crt'
+eda_tls_key='{{ certs_dir }}/wildcard-example.com.key'
+gateway_tls_cert='{{ certs_dir }}/wildcard-example.com.crt'
+gateway_tls_key='{{ certs_dir }}/wildcard-example.com.key'
+hub_tls_cert='{{ certs_dir }}/wildcard-example.com.crt'
+hub_tls_key='{{ certs_dir }}/wildcard-example.com.key'
+
+# NFS HUB
+hub_shared_data_mount_opts='rw,sync,hard'
+hub_shared_data_path='lockerstor.example.com:/volume2/hub-cl'
+hub_seed_collections=false
+gateway_main_url='https://aap-lb.example.com'
+
+# Postgres Stuff
+#gateway_pg_host=aapdb.example.com
+gateway_pg_host=localhost
+gateway_pg_port=5000
+gateway_pg_database=automationgateway
+gateway_pg_username=automationgateway
+
+#controller_pg_host=aapdb.example.com
+controller_pg_host=localhost
+controller_pg_port=5000
+controller_pg_database=automationcontroller
+controller_pg_username=automationcontroller
+
+#hub_pg_host=aapdb.example.com
+hub_pg_host=localhost
+hub_pg_port=5000
+hub_pg_database=automationhub
+hub_pg_username=automationhub
+
+#eda_pg_host=aapdb.example.com
+eda_pg_host=localhost
+eda_pg_port=5000
+eda_pg_database=automationeda
+eda_pg_username=automationeda
+
+postgresql_admin_username=postgres
+
+# AAP Lightspeed
+# https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/2.6/html/containerized_installation/appendix-inventory-files-vars#ref-lightspeed-variables
+# -----------------------------------------------------
+# lightspeed_admin_password=<set your own>
+# lightspeed_pg_host=externaldb.example.org
+# lightspeed_pg_password=<set your own>
+
+# In case chatbot is enabled, the default provider is "rhoai"
+# lightspeed_chatbot_model_url=<set your own>
+# lightspeed_chatbot_model_api_key=<set your own>
+# lightspeed_chatbot_model_id=<set your own>
+
+# In case "azure" provider
+# lightspeed_chatbot_default_provider = "azure"
+
+# In case "openai" provider
+# lightspeed_chatbot_default_provider = "openai"
+
+# lightspeed_mcp_controller_enabled=true
+# lightspeed_mcp_lightspeed_enabled=true
+# lightspeed_wca_model_api_key=<set your own>
+# lightspeed_wca_model_id=<set your own>

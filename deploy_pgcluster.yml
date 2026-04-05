@@ -1,0 +1,119 @@
+---
+- name: Deploy Postgres in a three node cluster
+  hosts: pgcluster
+  gather_facts: true
+  tasks:
+
+    - name: Deploy etcd block
+      become: true
+      block:
+
+        - name: Install GPG key
+          ansible.builtin.rpm_key:
+            state: present
+            key: "{{ pg_gpg_key_url }}"
+
+        - name: Install PG Repo RPM
+          ansible.builtin.dnf:
+            name: "{{ pg_full_dl_url }}"
+
+        - name: Disable all repos
+          ansible.builtin.command: dnf config-manager --set-disabled '*'
+          changed_when: false
+
+        - name: Enable the required version
+          ansible.builtin.command: >-
+            dnf config-manager --set-enabled {{ pgsql_repos | join(',') }}
+          changed_when: false
+          vars:
+            pgsql_repos:
+              - "pgdg-common"
+              - "pgdg-rhel9-extras"
+              - "pgdg16"
+              - "rhel-{{ ansible_distribution_major_version }}-for-x86_64-appstream-rpms"
+              - "rhel-{{ ansible_distribution_major_version }}-for-x86_64-baseos-rpms"
+
+        - name: Deploy etcd packages
+          ansible.builtin.dnf:
+            name:
+              - etcd
+              - python3-etcd
+
+        - name: Set default firewalld zone
+          ansible.builtin.command: firewall-cmd --set-default-zone internal
+          changed_when: false
+
+        - name: Open the required ports
+          ansible.posix.firewalld:
+            port: "{{ etcd_fw_port }}"
+            state: enabled
+            permanent: true
+            immediate: true
+          loop: "{{ etcd_ports }}"
+          loop_control:
+            loop_var: etcd_fw_port
+
+        - name: Allow the PostgreSQL service in firewalld
+          ansible.posix.firewalld:
+            service: postgresql
+            state: enabled
+            permanent: true
+            immediate: true
+
+        - name: Disable postgresql 13
+          ansible.builtin.command: dnf -qy module disable postgresql
+          changed_when: false
+
+        - name: Install the required version
+          ansible.builtin.command: dnf -qy module install postgresql:16/server
+          changed_when: false
+
+        - name: Install PostgreSQL components
+          ansible.builtin.dnf:
+            name:
+              - acl
+              - postgresql-server
+              - postgresql-contrib
+              - python3-psycopg2
+              - patroni-etcd
+            state: installed
+
+        - name: Create patroni.yml file
+          ansible.builtin.template:
+            src: patroni.j2
+            dest: /etc/patroni/patroni.yml
+            owner: postgres
+            group: postgres
+            mode: '0600'
+          notify:
+            - Start etcd
+            - Start patroni
+
+        - name: Deploy etcd.conf
+          ansible.builtin.template:
+            src: etcd_conf.j2
+            dest: /etc/etcd/etcd.conf
+            owner: root
+            group: root
+            mode: '0644'
+          notify:
+            - Start etcd
+            - Start patroni
+
+  handlers:
+
+    - name: Start etcd
+      ansible.builtin.systemd_service:
+        name: etcd
+        state: started
+        enabled: true
+      become: true
+
+    - name: Start patroni
+      ansible.builtin.systemd_service:
+        name: patroni
+        state: started
+        enabled: true
+      become: true
+
+...

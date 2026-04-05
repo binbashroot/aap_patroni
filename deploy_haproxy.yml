@@ -1,0 +1,63 @@
+---
+- name: Deploy Postgres in a three node cluster
+  hosts: deploy.cms4u2eat.com,aaplarge,pgcluster,!aapdb.cms4u2eat.com
+  gather_facts: true
+  become: true
+  tasks:
+
+    - name: Deploy etcd packages
+      ansible.builtin.dnf:
+        name: haproxy
+        state: present
+      notify: Restart haproxy
+      when:
+        - inventory_hostname in groups['aaplarge'] or
+          inventory_hostname is search(('deploy'))
+
+    - name: Open the required ports
+      ansible.posix.firewalld:
+        port: "{{ haproxy_pg_port }}"
+        state: enabled
+        permanent: true
+        immediate: true
+      loop:
+        - '5000/tcp'
+        - '5001/tcp'
+      loop_control:
+        loop_var: haproxy_pg_port
+      when:
+        inventory_hostname not in groups['pgcluster']
+
+    - name: Install the template file
+      ansible.builtin.template:
+        src: haproxy.j2
+        dest: /etc/haproxy/haproxy.cfg
+        owner: haproxy
+        group: haproxy
+        mode: '0644'
+      notify:
+        - Restart haproxy
+      when:
+        - inventory_hostname in groups['aaplarge'] or
+          inventory_hostname is search(('deploy'))
+
+    - name: Set httpd_can_network_connect flag on and keep it persistent across reboots
+      ansible.posix.seboolean:
+        name: haproxy_connect_any
+        state: true
+        persistent: true
+      notify:
+        - Restart haproxy
+
+  handlers:
+
+    - name: Restart haproxy
+      ansible.builtin.systemd_service:
+        name: haproxy
+        state: started
+        enabled: true
+      when:
+        - inventory_hostname in groups['aaplarge'] or
+          inventory_hostname is search(('deploy'))
+
+...

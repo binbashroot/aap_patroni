@@ -1,0 +1,20 @@
+# AAP installer deployment host
+[deployers]
+deploy.example.com
+
+# AAP enterprise topology hosts
+[aaplarge]
+aapgtwy1.example.com
+aapgtwy2.example.com
+aapctrl1.example.com
+aapctrl2.example.com
+aaphub1.example.com
+aaphub2.example.com
+aapeda1.example.com
+aapeda2.example.com
+
+# Patroni / Postgres hosts
+[pgcluster]
+pg1.example.com
+pg2.example.com
+pg3.example.com

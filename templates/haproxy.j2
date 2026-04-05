@@ -1,0 +1,31 @@
+# 
+frontend patroni_pgprimary_fe
+  bind *:5000
+  mode tcp
+  option tcplog
+  default_backend patroni_pgprimary_be 
+
+frontend patroni_pgreplicas_fe
+    bind *:5001
+    mode tcp
+    option tcplog
+    default_backend patroni_pgreplicas_be
+
+backend patroni_pgprimary_be
+    mode tcp
+    option httpchk GET /master
+    http-check expect status 200
+    default-server inter 3s fall 3 rise 2 on-marked-down shutdown-sessions
+    {% for host in groups['pgcluster'] -%}
+    server {{ hostvars[host]['ansible_fqdn'] }} {{ hostvars[host]['ansible_default_ipv4']['address'] }}:5432 maxconn 100 check port 8008
+    {% endfor %}
+ 
+backend patroni_pgreplicas_be
+    mode tcp
+    option httpchk GET /replica
+    http-check expect status 200
+    default-server inter 3s fall 3 rise 2 on-marked-down shutdown-sessions
+    {% for host in groups['pgcluster'] -%}
+    server {{ hostvars[host]['ansible_fqdn'] }} {{ hostvars[host]['ansible_default_ipv4']['address'] }}:5432 maxconn 100 check port 8008
+    {% endfor %}
+
