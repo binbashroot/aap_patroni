@@ -2,6 +2,18 @@
 - name: Deploy Postgres in a three node cluster
   hosts: pgcluster
   gather_facts: true
+  vars:
+    etcd_ports:
+      - '2379/tcp'
+      - '2380/tcp'
+      - '8008/tcp'
+
+    pg_base_dl_url: 'https://download.postgresql.org/pub/repos/yum'
+    pg_arch: "EL-{{ ansible_distribution_major_version }}-x86_64"
+    pg_rpm: "pgdg-redhat-repo-latest.noarch.rpm"
+    pg_full_dl_url: "{{ pg_base_dl_url }}/reporpms/{{ pg_arch }}/{{ pg_rpm }}"
+    pg_gpg_key_url: "{{ pg_base_dl_url }}/keys/PGDG-RPM-GPG-KEY-RHEL"
+
   tasks:
 
     - name: Deploy etcd block
