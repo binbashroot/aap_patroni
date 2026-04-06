@@ -3,6 +3,8 @@
 deploy.example.com
 
 # AAP enterprise topology hosts
+# Excluded execution nodes
+# Excludes DB servers.
 [aaplarge]
 aapgtwy1.example.com
 aapgtwy2.example.com
