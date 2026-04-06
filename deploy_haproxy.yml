@@ -5,7 +5,7 @@
   become: true
   tasks:
 
-    - name: Deploy etcd packages
+    - name: Deploy haproxy 
       ansible.builtin.dnf:
         name: haproxy
         state: present

@@ -9,7 +9,7 @@ AAP2.6+ in an HA config using Patroni
 
 Additional information:  
 ETCD and Patroni are installed from an external Postgres yum repo
-Postgres 16 is install from the RHEL9 supported repositories
+Postgres 16 is installed from the RHEL9 supported repositories
 
 To check etcd health
 etcdctl --endpoints=http://PG1_IP:2379,http://PG2_IP:2379,http://PG3_IP:2379 endpoint health
