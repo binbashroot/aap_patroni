@@ -1,10 +1,6 @@
-# AAP installer deployment host
-[deployers]
-deploy.example.com
-
 # AAP enterprise topology hosts
-# Excluded execution nodes
-# Excludes DB servers.
+# Only include gateway,controller,eda, and hub hosts
+
 [aaplarge]
 aapgtwy1.example.com
 aapgtwy2.example.com
