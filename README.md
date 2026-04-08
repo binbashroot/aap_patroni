@@ -1,7 +1,7 @@
 AAP2.6+ in an HA config using Patroni    
 
 1. Build your AAP and Postgres hosts to spec
-2. Create a patroni "inventory". Refer to the [Patroni](./examples/patroni_inventory)
+2. Create a patroni "inventory". Refer to the [Patroni](./examples/patroni_inventory) inventory.
 3. Run deploy_pgcluster.yml playbook against your patroni inventory
 4. Run deploy_haproxy.yml playbook against your patroni inventory
 5. Update your AAP installation inventory to use "localhost" for your pg hosts. This is NOT your patroni inventory. Refer to the example AAP 2.6 [inventory](./examples/aap26_inventory)
