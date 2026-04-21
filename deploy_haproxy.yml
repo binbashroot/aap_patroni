@@ -1,6 +1,6 @@
 ---
-- name: Deploy Postgres in a three node cluster
-  hosts: deployers,aaplarge,pgcluster
+- name: Deploy haproxy 
+  hosts: aaplarge
   gather_facts: true
   become: true
   tasks:
@@ -38,8 +38,7 @@
       notify:
         - Restart haproxy
       when:
-        - inventory_hostname in groups['aaplarge'] or
-          inventory_hostname in groups['deployers']
+        - inventory_hostname in groups['aaplarge']
 
     - name: Set httpd_can_network_connect flag on and keep it persistent across reboots
       ansible.posix.seboolean:
@@ -57,7 +56,6 @@
         state: started
         enabled: true
       when:
-        - inventory_hostname in groups['aaplarge'] or
-          inventory_hostname in groups['deployers']
+        - inventory_hostname in groups['aaplarge']
 
 ...
