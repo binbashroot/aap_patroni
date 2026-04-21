@@ -10,10 +10,7 @@
         name: haproxy
         state: present
       notify: Restart haproxy
-      when:
-        - inventory_hostname in groups['aaplarge'] or
-          inventory_hostname in groups['deployers']
-
+        
     - name: Open the required ports
       ansible.posix.firewalld:
         port: "{{ haproxy_pg_port }}"
@@ -25,8 +22,6 @@
         - '5001/tcp'
       loop_control:
         loop_var: haproxy_pg_port
-      when:
-        inventory_hostname not in groups['pgcluster']
 
     - name: Install the template file
       ansible.builtin.template:
@@ -37,8 +32,6 @@
         mode: '0644'
       notify:
         - Restart haproxy
-      when:
-        - inventory_hostname in groups['aaplarge']
 
     - name: Set httpd_can_network_connect flag on and keep it persistent across reboots
       ansible.posix.seboolean:
@@ -55,7 +48,5 @@
         name: haproxy
         state: started
         enabled: true
-      when:
-        - inventory_hostname in groups['aaplarge']
 
 ...
