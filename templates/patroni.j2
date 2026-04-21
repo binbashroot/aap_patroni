@@ -39,7 +39,8 @@ bootstrap:
     - data-checksums
 
   pg_hba:
-    - host replication replicator samenet scram-sha-256 
+    - host replication replicator samenet scram-sha-256
+    - host all postgres samenet scram-sha-256
     - host awx awx samenet scram-sha-256
     - host eda eda samenet scram-sha-256
     - host gateway gateway samenet scram-sha-256
@@ -48,7 +49,6 @@ bootstrap:
     - host automationhub automationhub samenet scram-sha-256
     - host automationeda automationeda samenet scram-sha-256
     - host automationgateway automationgateway samenet scram-sha-256
-    - host all postgres samenet scram-sha-256
 # This file uses both the default aap users/database names as well
 # as the custom ones defined in the example aap 2.6 inventory
   users:
